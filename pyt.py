@@ -23,4 +23,4 @@ iframe {{
 """
 
 # نعرض الـ HTML جوه Streamlit
-components.html(full_screen_html, height=900, scrolling=False)
+components.html(full_screen_html, height=900, scrolling=True)
