@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GenoScene - DNA Phenotype Prediction</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #111827;
+    --ink: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #22d3ee;
+    --good: #10b981;
+    --warn: #f59e0b;
+    --bad: #ef4444;
+    --primary: #3b82f6;
+    --secondary: #6366f1;
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(180deg, #0b1024, #0f172a 40%, #020617 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  
+  .wrap {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 16px;
+  }
+  
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .logo-text {
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #22d3ee, #14b8a6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .badge {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  
+  .lang {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .lang button {
+    background: #1f2937;
+    border: 1px solid #374151;
+    color: #e5e7eb;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+  
+  .lang button:hover {
+    background: #374151;
+  }
+  
+  .card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  @media (max-width: 968px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  
+  input[type="text"], input[type="file"] {
+    background: #0b1220;
+    border: 1px solid #1f2937;
+    color: #e5e7eb;
+    padding: 12px 16px;
+    border-radius: 10px;
+    min-width: 220px;
+    flex: 1;
+    transition: border-color 0.3s;
+    font-size: 14px;
+  }
+  
+  input[type="text"]:focus, input[type="file"]:focus {
+    outline: none;
+    border-color: #22d3ee;
+  }
+  
+  .btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .btn.muted {
+    background: #1f2937;
+    color: #e5e7eb;
+    border: 1px solid #374151;
+  }
+  
+  .btn.muted:hover {
+    background: #374151;
+  }
+  
+  .btn.accent {
+    background: linear-gradient(135deg, #14b8a6, #22d3ee);
+  }
+  
+  .section-title {
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    margin: 0 0 20px;
+    font-size: 1.5rem;
+    color: #22d3ee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .section-title svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+    background: radial-gradient(
+      ellipse at 50% -20%,
+      rgba(34, 211, 238, 0.1),
+      transparent 60%
+    );
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+  }
+  
+  .avatar-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      45deg,
+      rgba(34, 211, 238, 0.1),
+      transparent 50%,
+      rgba(34, 211, 238, 0.1)
+    );
+    pointer-events: none;
+  }
+  
+  .generated-face {
+    width: 100%;
+    max-width: 280px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease;
+  }
+  
+  .generated-face:hover {
+    transform: scale(1.02);
+  }
+  
+  .face-placeholder {
+    width: 100%;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .chart {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    height: 180px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #0b1220;
+    border: 1px solid #1f2937;
+    margin-bottom: 20px;
+  }
+  
+  .bar {
+    width: 30%;
+    background: linear-gradient(
+      180deg,
+      rgba(34, 211, 238, 0.8),
+      rgba(34, 211, 238, 0.35)
+    );
+    border: 1px solid rgba(34, 211, 238, 0.5);
+    border-radius: 10px 10px 4px 4px;
+    position: relative;
+    transition: height 0.5s ease;
+  }
+  
+  .bar span {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 13px;
+    color: #022c33;
+    font-weight: 800;
+  }
+  
+  .bar::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -26px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  
+  .traits-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  @media (max-width: 768px) {
+    .traits-list {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .trait-pill {
+    background: #0b1220;
+    border: 1px solid #1f2937;
+    color: #e5e7eb;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .trait-pill:hover {
+    transform: translateY(-2px);
+    border-color: #22d3ee;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .trait-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+  
+  @media (max-width: 968px) {
+    .trait-details {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .trait-category {
+    background: #0b1220;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  
+  .trait-category h4 {
+    margin-bottom: 12px;
+    color: #22d3ee;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .probability-bar {
+    margin-bottom: 12px;
+  }
+  
+  .probability-bar .label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  
+  .probability-bar .bar-container {
+    background: #1f2937;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .probability-bar .bar-fill {
+    background: linear-gradient(90deg, #14b8a6, #22d3ee);
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+  
+  .file-upload {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .file-upload input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+  
+  .file-info {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  
+  .processing-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(2, 6, 23, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .processing-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: #22d3ee;
+    animation: spin 1s linear infinite;
+  }
+  
+  .processing-text {
+    color: #e5e7eb;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  footer {
+    color: #64748b;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  /* Animations */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* RTL support */
+  [dir="rtl"] {
+    text-align: right;
+  }
+  
+  [dir="rtl"] .row {
+    flex-direction: row-reverse;
+  }
+  
+  [dir="rtl"] .traits-list {
+    direction: rtl;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="logo">
+        <div class="logo-text">GenoScene</div>
+        <div class="badge">AI-Powered Phenotype Prediction</div>
+      </div>
+      <div class="lang">
+        <span class="badge" id="langLabel">EN</span>
+        <button class="btn muted" id="toggleLangBtn">عربي / English</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="section-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span data-en="Input Data" data-ar="بيانات الإدخال">Input Data</span>
+        </div>
+        
+        <div class="row">
+          <input id="sampleId" type="text" placeholder="Sample ID / معرف العينة" />
+        </div>
+        
+        <div class="row">
+          <div class="file-upload">
+            <button class="btn muted">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 6px;">
+                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+              </svg>
+              <span data-en="Upload VCF File" data-ar="رفع ملف VCF">Upload VCF File</span>
+            </button>
+            <input type="file" id="vcfFile" accept=".vcf,.txt" />
+          </div>
+          <div class="file-info" id="vcfFileInfo"></div>
+        </div>
+        
+        <div class="row">
+          <div class="file-upload">
+            <button class="btn muted">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 6px;">
+                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+              </svg>
+              <span data-en="Upload mzML File" data-ar="رفع ملف mzML">Upload mzML File</span>
+            </button>
+            <input type="file" id="mzmlFile" accept=".mzml" />
+          </div>
+          <div class="file-info" id="mzmlFileInfo"></div>
+        </div>
+        
+        <div class="row" style="margin-top: 20px;">
+          <button class="btn accent" id="predictBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 6px;">
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zM4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683zM10 8c-.552 0-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5S10.552 8 10 8z"/>
+            </svg>
+            <span data-en="Predict Phenotypes" data-ar="تنبؤ بالسمات">Predict Phenotypes</span>
+          </button>
+          
+          <button class="btn" id="generateFaceBtn" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 6px;">
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm-4.5-5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5v-1zm5 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5v-1zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5v-1zm5 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5v-1z"/>
+            </svg>
+            <span data-en="Generate Face" data-ar="توليد الوجه">Generate Face</span>
+          </button>
+        </div>
+        
+        <div class="row">
+          <button class="btn muted" id="loadDemoBtn">
+            <span data-en="Load Demo Data" data-ar="تحميل بيانات تجريبية">Load Demo Data</span>
+          </button>
+          
+          <button class="btn muted" id="resetBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 6px;">
+              <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+              <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+            </svg>
+            <span data-en="Reset" data-ar="إعادة تعيين">Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span data-en="Generated Face" data-ar="الوجه المُولد">Generated Face</span>
+        </div>
+        
+        <div class="avatar-container">
+          <div class="face-placeholder" id="facePlaceholder">
+            <span data-en="Upload data and click 'Predict Phenotypes' to generate a face" 
+                  data-ar="قم برفع البيانات ثم انقر على 'تنبؤ بالسمات' لتوليد الوجه">
+              Upload data and click 'Predict Phenotypes' to generate a face
+            </span>
+          </div>
+          <img class="generated-face hidden" id="generatedFace" alt="Generated face based on DNA analysis" />
+        </div>
+        
+        <div class="row" style="justify-content: center; margin-top: 16px;">
+          <div class="badge" id="avatarSummary" data-en="No predictions yet" data-ar="لا توجد تنبؤات بعد">No predictions yet</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <span data-en="Predicted Probabilities" data-ar="احتمالات السمات المتوقعة">Predicted Probabilities</span>
+      </div>
+      
+      <div class="chart">
+        <div id="barHair" class="bar" style="height:30%" data-label="Hair"></div>
+        <div id="barEye" class="bar" style="height:30%" data-label="Eyes"></div>
+        <div id="barSkin" class="bar" style="height:30%" data-label="Skin"></div>
+      </div>
+      
+      <div class="traits-list">
+        <div class="trait-pill" id="hairTxt">Hair: —</div>
+        <div class="trait-pill" id="eyeTxt">Eyes: —</div>
+        <div class="trait-pill" id="skinTxt">Skin: —</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span data-en="Detailed Probabilities" data-ar="الاحتمالات التفصيلية">Detailed Probabilities</span>
+      </div>
+      
+      <div class="trait-details">
+        <div class="trait-category">
+          <h4 data-en="Hair Color" data-ar="لون الشعر">Hair Color</h4>
+          <div id="hairDetails"></div>
+        </div>
+        <div class="trait-category">
+          <h4 data-en="Eye Color" data-ar="لون العينين">Eye Color</h4>
+          <div id="eyeDetails"></div>
+        </div>
+        <div class="trait-category">
+          <h4 data-en="Skin Tone" data-ar="لون البشرة">Skin Tone</h4>
+          <div id="skinDetails"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div data-en="GenoScene - AI-Powered Forensic Phenotype Prediction System | This is a demonstration prototype"
+           data-ar="GenoScene - نظام التنبؤ بالسمات الوراثية المدعوم بالذكاء الاصطناعي | هذا نموذج تجريبي">
+        GenoScene - AI-Powered Forensic Phenotype Prediction System | This is a demonstration prototype
+      </div>
+      <div style="margin-top: 8px;">
+        <span data-en="Version: 2.1.0" data-ar="الإصدار: 2.1.0">Version: 2.1.0</span> | 
+        <span data-en="Updated: 2025-09-01" data-ar="آخر تحديث: 2025-09-01">Updated: 2025-09-01</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="processing-overlay hidden" id="processingOverlay">
+    <div class="processing-spinner"></div>
+    <div class="processing-text" data-en="Processing DNA data..." data-ar="جاري معالجة بيانات DNA...">Processing DNA data...</div>
+  </div>
+
+<script>
+
+  const state = {
+    lang: 'en',
+    probs: {
+      hair: {brown: 0.4, blonde: 0.3, black: 0.3}, 
+      eye: {brown: 0.5, blue: 0.3, green: 0.2}, 
+      skin: {light: 0.4, medium: 0.4, dark: 0.2}
+    },
+    hasPrediction: false
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+
+    document.getElementById('toggleLangBtn').addEventListener('click', toggleLang);
+    document.getElementById('loadDemoBtn').addEventListener('click', loadDemo);
+    document.getElementById('predictBtn').addEventListener('click', predict);
+    document.getElementById('generateFaceBtn').addEventListener('click', generateFace);
+    document.getElementById('resetBtn').addEventListener('click', resetApp);
+    
+    document.getElementById('vcfFile').addEventListener('change', handleFileSelect);
+    document.getElementById('mzmlFile').addEventListener('change', handleFileSelect);
+    
+    // التهيئة الأولية
+    initApp();
+  });
+
+  // دالة لمزامنة النصوص بناءً على اللغة المحددة
+  function tSync(){
+    document.querySelectorAll('[data-en]').forEach(el => {
+      if (el.getAttribute('data-en') && el.getAttribute('data-ar')) {
+        el.textContent = state.lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-ar');
+      }
+    });
+    document.getElementById('langLabel').textContent = state.lang.toUpperCase();
+    
+    // تحديث الملصقات الديناميكية
+    updateDynamicLabels();
+  }
+  
+  // دالة لتبديل اللغة بين الإنجليزية والعربية
+  function toggleLang(){
+    state.lang = state.lang === 'en' ? 'ar' : 'en';
+    document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = state.lang;
+    tSync();
+  }
+  
+  // دالة للتعامل مع اختيار الملفات
+  function handleFileSelect(event) {
+    const fileInput = event.target;
+    const fileInfo = document.getElementById(fileInput.id + 'Info');
+    
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      fileInfo.textContent = `${file.name} (${formatFileSize(file.size)})`;
+      fileInfo.style.color = '#22d3ee';
+    } else {
+      fileInfo.textContent = '';
+    }
+  }
+  
+  // دالة لتنسيق حجم الملف
+  function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+  
+  // دالة لإظهار التحميل
+  function showLoading() {
+    document.getElementById('processingOverlay').classList.remove('hidden');
+  }
+  
+  // دالة لإخفاء التحميل
+  function hideLoading() {
+    document.getElementById('processingOverlay').classList.add('hidden');
+  }
+
+  // دالة لتحميل بيانات تجريبية
+  function loadDemo(){
+    document.getElementById('sampleId').value = 'DEMO-FTDNA-001';
+    document.getElementById('vcfFileInfo').textContent = 'demo_data.vcf (2.4 MB)';
+    document.getElementById('mzmlFileInfo').textContent = 'demo_toxicity.mzml (3.1 MB)';
+    
+    // إعداد احتمالات تجريبية
+    state.probs = {
+      hair: {brown: 0.62, blonde: 0.18, black: 0.20},
+      eye: {brown: 0.55, blue: 0.25, green: 0.20},
+      skin: {light: 0.35, medium: 0.45, dark: 0.20}
+    };
+    
+    // تمكين زر توليد الوجه
+    document.getElementById('generateFaceBtn').disabled = false;
+    
+    render();
+  }
+  
+  // دالة للتنبؤ بالسمات
+  function predict(){
+    // التحقق من وجود بيانات
+    const sampleId = document.getElementById('sampleId').value;
+    if (!sampleId) {
+      alert(state.lang === 'en' ? 'Please enter a sample ID' : 'يرجى إدخال معرف العينة');
+      return;
+    }
+    
+    showLoading();
+    
+    // محاكاة عملية تحميل وتحليل البيانات
+    setTimeout(() => {
+      // تمكين زر توليد الوجه
+      document.getElementById('generateFaceBtn').disabled = false;
+      state.hasPrediction = true;
+      
+      // حفظ الحالة الحالية في التاريخ
+      saveState();
+      
+      render();
+      hideLoading();
+    }, 2000);
+  }
+  
+  // دالة لتوليد الوجه
+  function generateFace() {
+    if (!state.hasPrediction) {
+      alert(state.lang === 'en' 
+        ? 'Please predict phenotypes first' 
+        : 'يرجى تنبؤ السمات أولاً');
+      return;
+    }
+    
+    showLoading();
+    
+    // محاكاة عملية توليد الوجه
+    setTimeout(() => {
+      // اختيار السمة ذات الاحتمال الأعلى لكل خاصية
+      const pickMax = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1])[0];
+      const hair = pickMax(state.probs.hair)[0];
+      const eye = pickMax(state.probs.eye)[0];
+      const skin = pickMax(state.probs.skin)[0];
+      
+      // عرض صورة الوجه (في الواقع الحقيقي، سيتم استدعاء API أو استخدام نموذج محلي)
+      const faceImg = document.getElementById('generatedFace');
+      const facePlaceholder = document.getElementById('facePlaceholder');
+      
+      // استخدام صورة وهمية بناءً على السمات (في الواقع الحقيقي، سيتم توليدها)
+      faceImg.src = `https://placehold.co/400x400/3b82f6/ffffff?text=${hair}+${eye}+${skin}+face`;
+      facePlaceholder.classList.add('hidden');
+      faceImg.classList.remove('hidden');
+      
+      // تحديث ملخص الصورة الرمزية
+      updateAvatarSummary(hair, eye, skin);
+      
+      hideLoading();
+    }, 1500);
+  }
+  
+  // دالة لتحديث ملخص الصورة الرمزية
+  function updateAvatarSummary(hair, eye, skin) {
+    const hairLabels = {
+      'brown': state.lang === 'en' ? 'Brown' : 'بني', 
+      'blonde': state.lang === 'en' ? 'Blonde' : 'أشقر', 
+      'black': state.lang === 'en' ? 'Black' : 'أسود'
+    };
+    const eyeLabels = {
+      'brown': state.lang === 'en' ? 'Brown' : 'بني', 
+      'blue': state.lang === 'en' ? 'Blue' : 'أزرق', 
+      'green': state.lang === 'en' ? 'Green' : 'أخضر'
+    };
+    const skinLabels = {
+      'light': state.lang === 'en' ? 'Light' : 'فاتح', 
+      'medium': state.lang === 'en' ? 'Medium' : 'متوسط', 
+      'dark': state.lang === 'en' ? 'Dark' : 'غامق'
+    };
+    
+    const summary = state.lang === 'en' 
+      ? `Hair: ${hairLabels[hair]}, Eyes: ${eyeLabels[eye]}, Skin: ${skinLabels[skin]}`
+      : `الشعر: ${hairLabels[hair]}, العينان: ${eyeLabels[eye]}, البشرة: ${skinLabels[skin]}`;
+    
+    document.getElementById('avatarSummary').textContent = summary;
+  }
+  
+  // دالة لتحويل القيمة العشرية إلى نسبة مئوية
+  function pct(x) { 
+    return Math.round(x * 100); 
+  }
+  
+  // دالة لعرض البيانات على المخططات والنصوص
+  function render() {
+    const hairP = Math.max(state.probs.hair.brown, state.probs.hair.blonde, state.probs.hair.black);
+    const eyeP = Math.max(state.probs.eye.brown, state.probs.eye.blue, state.probs.eye.green);
+    const skinP = Math.max(state.probs.skin.light, state.probs.skin.medium, state.probs.skin.dark);
+
+    const labelHair = state.lang === 'en' ? 'Hair' : 'الشعر';
+    const labelEye = state.lang === 'en' ? 'Eyes' : 'العينان';
+    const labelSkin = state.lang === 'en' ? 'Skin' : 'البشرة';
+
+    const barH = document.getElementById('barHair');
+    const barE = document.getElementById('barEye');
+    const barS = document.getElementById('barSkin');
+    
+    barH.style.height = (10 + hairP * 90) + '%';
+    barE.style.height = (10 + eyeP * 90) + '%';
+    barS.style.height = (10 + skinP * 90) + '%';
+    
+    barH.setAttribute('data-label', labelHair);
+    barE.setAttribute('data-label', labelEye);
+    barS.setAttribute('data-label', labelSkin);
+    
+    barH.innerHTML = '<span>' + pct(hairP) + '%</span>';
+    barE.innerHTML = '<span>' + pct(eyeP) + '%</span>';
+    barS.innerHTML = '<span>' + pct(skinP) + '%</span>';
+
+    const pickMax = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1])[0];
+    const h = pickMax(state.probs.hair);
+    const e = pickMax(state.probs.eye);
+    const s = pickMax(state.probs.skin);
+    
+    const hairLabels = {
+      'brown': state.lang === 'en' ? 'brown' : 'بني', 
+      'blonde': state.lang === 'en' ? 'blonde' : 'أشقر', 
+      'black': state.lang === 'en' ? 'black' : 'أسود'
+    };
+    const eyeLabels = {
+      'brown': state.lang === 'en' ? 'brown' : 'بني', 
+      'blue': state.lang === 'en' ? 'blue' : 'أزرق', 
+      'green': state.lang === 'en' ? 'green' : 'أخضر'
+    };
+    const skinLabels = {
+      'light': state.lang === 'en' ? 'light' : 'فاتح', 
+      'medium': state.lang === 'en' ? 'medium' : 'متوسط', 
+      'dark': state.lang === 'en' ? 'dark' : 'غامق'
+    };
+    
+    document.getElementById('hairTxt').textContent =
+      (state.lang === 'en' ? 'Hair: ' : 'الشعر: ') + hairLabels[h[0]] + ' (' + pct(h[1]) + '%)';
+    document.getElementById('eyeTxt').textContent =
+      (state.lang === 'en' ? 'Eyes: ' : 'العينان: ') + eyeLabels[e[0]] + ' (' + pct(e[1]) + '%)';
+    document.getElementById('skinTxt').textContent =
+      (state.lang === 'en' ? 'Skin: ' : 'البشرة: ') + skinLabels[s[0]] + ' (' + pct(s[1]) + '%)';
+
+    // تحديث التفاصيل
+    updateDetails();
+    
+    tSync();
+  }
+  
+  // دالة لتحديث التفاصيل
+  function updateDetails() {
+    const hairDetails = document.getElementById('hairDetails');
+    const eyeDetails = document.getElementById('eyeDetails');
+    const skinDetails = document.getElementById('skinDetails');
+    
+    hairDetails.innerHTML = generateDetailHTML(state.probs.hair, state.lang, 'hair');
+    eyeDetails.innerHTML = generateDetailHTML(state.probs.eye, state.lang, 'eye');
+    skinDetails.innerHTML = generateDetailHTML(state.probs.skin, state.lang, 'skin');
+  }
+  
+  // دالة لإنشاء HTML للتفاصيل
+  function generateDetailHTML(probs, lang, type) {
+    const labels = {
+      hair: {
+        brown: lang === 'en' ? 'Brown' : 'بني',
+        blonde: lang === 'en' ? 'Blonde' : 'أشقر', 
+        black: lang === 'en' ? 'Black' : 'أسود'
+      },
+      eye: {
+        brown: lang === 'en' ? 'Brown' : 'بني',
+        blue: lang === 'en' ? 'Blue' : 'أزرق', 
+        green: lang === 'en' ? 'Green' : 'أخضر'
+      },
+      skin: {
+        light: lang === 'en' ? 'Light' : 'فاتح',
+        medium: lang === 'en' ? 'Medium' : 'متوسط', 
+        dark: lang === 'en' ? 'Dark' : 'غامق'
+      }
+    };
+    
+    let html = '';
+    for (const [key, value] of Object.entries(probs)) {
+      const width = value * 100;
+      html += `
+        <div class="probability-bar">
+          <div class="label">
+            <span>${labels[type][key]}</span>
+            <span>${pct(value)}%</span>
+          </div>
+          <div class="bar-container">
+            <div class="bar-fill" style="width: ${width}%"></div>
+          </div>
+        </div>
+      `;
+    }
+    return html;
+  }
+  
+  // دالة لتحديث التسميات الديناميكية
+  function updateDynamicLabels() {
+    if (state.hasPrediction) {
+      const pickMax = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1])[0];
+      const hair = pickMax(state.probs.hair)[0];
+      const eye = pickMax(state.probs.eye)[0];
+      const skin = pickMax(state.probs.skin)[0];
+      
+      updateAvatarSummary(hair, eye, skin);
+    }
+  }
+  
+  // دالة لحفظ الحالة الحالية
+  function saveState() {
+    // يمكن استخدامها لحفظ الحالة في localStorage إذا لزم الأمر
+  }
+  
+  // دالة لإعادة تعيين التطبيق
+  function resetApp() {
+    document.getElementById('sampleId').value = '';
+    document.getElementById('vcfFile').value = '';
+    document.getElementById('mzmlFile').value = '';
+    document.getElementById('vcfFileInfo').textContent = '';
+    document.getElementById('mzmlFileInfo').textContent = '';
+    
+    document.getElementById('generatedFace').classList.add('hidden');
+    document.getElementById('facePlaceholder').classList.remove('hidden');
+    
+    document.getElementById('generateFaceBtn').disabled = true;
+    
+    state.probs = {
+      hair: {brown: 0.4, blonde: 0.3, black: 0.3},
+      eye: {brown: 0.5, blue: 0.3, green: 0.2},
+      skin: {light: 0.4, medium: 0.4, dark: 0.2}
+    };
+    state.hasPrediction = false;
+    
+    document.getElementById('hairTxt').textContent = state.lang === 'en' ? 'Hair: —' : 'الشعر: —';
+    document.getElementById('eyeTxt').textContent = state.lang === 'en' ? 'Eyes: —' : 'العينان: —';
+    document.getElementById('skinTxt').textContent = state.lang === 'en' ? 'Skin: —' : 'البشرة: —';
+    
+    document.getElementById('avatarSummary').textContent = state.lang === 'en' ? 'No predictions yet' : 'لا توجد تنبؤات بعد';
+    
+    document.getElementById('barHair').style.height = '30%';
+    document.getElementById('barEye').style.height = '30%';
+    document.getElementById('barSkin').style.height = '30%';
+    
+    document.getElementById('barHair').innerHTML = '';
+    document.getElementById('barEye').innerHTML = '';
+    document.getElementById('barSkin').innerHTML = '';
+    
+    document.getElementById('hairDetails').innerHTML = '';
+    document.getElementById('eyeDetails').innerHTML = '';
+    document.getElementById('skinDetails').innerHTML = '';
+  }
+  
+  // دالة لتهيئة التطبيق
+  function initApp() {
+    render();
+    tSync();
+    
+    // إضافة تأثيرات عند التحميل
+    setTimeout(() => {
+      document.querySelectorAll('.card').forEach((card, index) => {
+        card.style.animation = `slideIn 0.5s ease ${index * 0.1}s forwards`;
+        card.style.opacity = '0';
+      });
+    }, 100);
+  }
+</script>
+</body>
+</html>
