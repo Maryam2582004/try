@@ -1,18 +1,8 @@
 import streamlit as st
-import pandas as pd
+import streamlit.components.v1 as components
 
-st.title("بروجكت Streamlit الأول 🚀")
+# نقرأ محتوى ملف HTML ونمرره للـ components
+with open("index.html", "r", encoding="utf-8") as f:
+    html_code = f.read()
 
-data = {
-    "الاسم": ["مريم", "أحمد", "خالد"],
-    "الدرجة": [95, 88, 76]
-}
-
-df = pd.DataFrame(data)
-
-st.write("الدرجات:")
-st.dataframe(df)
-
-if st.button("احسب المتوسط"):
-    avg = df["الدرجة"].mean()
-    st.success(f"متوسط الدرجات = {avg:.2f}")
+components.html(html_code, height=500, scrolling=True)
