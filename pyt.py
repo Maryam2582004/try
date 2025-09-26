@@ -1,24 +1,18 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import pathlib
 
-# افتحي ملف HTML اللي معاكي
-with open("genoscene.html", "r", encoding="utf-8") as f:
-    html_code = f.read()
+st.set_page_config(layout="wide")  # يخلي صفحة Streamlit تاخد عرض كامل
 
-# نضيف JavaScript يخلي الارتفاع يساوي ارتفاع نافذة المتصفح
-full_screen_html = f"""
-<script>
-    function resizeIframe() {{
-        var ifr = window.frameElement;
-        if (ifr) {{
-            ifr.style.height = window.innerHeight + "px";
-            ifr.style.width = window.innerWidth + "px";
-        }}
-    }}
-    window.onload = resizeIframe;
-    window.onresize = resizeIframe;
-</script>
-{html_code}
-"""
+# نجيب مسار ملف HTML
+html_path = pathlib.Path("genoscene.html")
 
-components.html(full_screen_html, height=0, scrolling=False)
+if html_path.exists():
+    # نقرأ الملف
+    with open(html_path, "r", encoding="utf-8") as f:
+        html_code = f.read()
+
+    # نعرضه fullscreen
+    components.html(html_code, height=800, scrolling=True)
+else:
+    st.error("❌ ملف index.html مش موجود في نفس الفولدر مع app.py")
